@@ -3,35 +3,30 @@ import pandas as pd
 def check_education_data(df: pd.DataFrame):
     stats = {}
 
-    # T01: 学号重复检测
-    duplicate_ids = df[df.duplicated(subset="学号", keep=False)]
-    stats["学号重复"] = duplicate_ids["学号"].nunique()
-
-    # T02: 学习时长范围检测
-    abnormal_duration = df[(df["学习时长"] < 30) | (df["学习时长"] > 80)]
-    stats["学习时长异常"] = len(abnormal_duration)
-
-    # T03: 凌晨学习检测（00:00-04:59）
+    # 转换学习时间为 datetime 和小时字段
     df["学习时间"] = pd.to_datetime(df["学习时间"])
     df["hour"] = df["学习时间"].dt.hour
-    night_study = df[(df["hour"] >= 0) & (df["hour"] < 5)]
-    stats["凌晨学习"] = len(night_study)
 
-    # T04: 完成状态缺失检测（空或“未完成”都算未完成）
-    incomplete = df["完成状态"].fillna("").apply(lambda x: x.strip() == "" or x == "未完成")
-    stats["未完成"] = incomplete.sum()
+    # 清洗字符串字段，防止因空格或大小写错误引发判断失误
+    df["学习状态"] = df["学习状态"].astype(str).str.strip()
+    df["完成状态"] = df["完成状态"].astype(str).str.strip()
 
-    # T05: 状态逻辑冲突（“正常”+“未完成” or “正常”+空）
-    def is_conflict(row):
-        status = str(row["学习状态"]).strip()
-        finish = str(row["完成状态"]).strip()
-        return status == "正常" and (finish == "未完成" or finish == "")
+    # T01: 学号重复检测
+    stats["学号重复"] = df[df.duplicated(subset="学号", keep=False)]["学号"].nunique()
 
-    logic_conflicts = df.apply(is_conflict, axis=1)
-    stats["状态逻辑冲突"] = logic_conflicts.sum()
+    # T02: 学习时长范围检测（不在30~80分钟内）
+    stats["学习时长异常"] = df[(df["学习时长"] < 30) | (df["学习时长"] > 80)].shape[0]
 
-    # 统计“正常”状态数量
+    # T03: 凌晨学习检测（00:00 ~ 04:59）
+    stats["凌晨学习"] = df[(df["hour"] >= 0) & (df["hour"] < 5)].shape[0]
+
+    # T04: 完成状态缺失检测（空或“未完成”）
+    stats["未完成"] = df["完成状态"].isin(["", "未完成"]).sum()
+
+    # T05: 状态逻辑冲突检测（学习状态为“正常”，但完成状态为空或“未完成”）
+    stats["状态逻辑冲突"] = df[(df["学习状态"] == "正常") & (df["完成状态"].isin(["", "未完成"]))].shape[0]
+
+    # 补充：统计“正常”状态的数量
     stats["正常"] = (df["学习状态"] == "正常").sum()
 
-    # 返回原始数据 + 检测统计
     return df, stats
