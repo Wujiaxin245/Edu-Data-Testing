@@ -50,3 +50,8 @@ jobs:
       with:
         files: python/coverage.xml
 
+    - name: Run data check script
+      run: |
+        cd python
+        python edu_tests.py
+
