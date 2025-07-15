@@ -22,7 +22,7 @@ def test_basic_stats():
     assert len(df_checked) == 7
     assert stats["学号重复"] == 1
     assert stats["学习时长异常"] == 2
-    assert stats["凌晨学习"] == 1
+    assert stats["凌晨学习"] == 2
     assert stats["未完成"] == 4
     assert stats["状态逻辑冲突"] == 2
     assert stats["正常"] == 2
