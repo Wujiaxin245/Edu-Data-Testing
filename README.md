@@ -1,61 +1,59 @@
-# Edu-Data-Testing
+# Edu-Data-Testing 📈 教育数据质量监控测试方案
 
-> 教育数据质量监控测试方案 - 基于 Excel/VBA 实现的数据验证与测试流程
+> 基于 Excel/VBA 与 Python 自动化实现的数据验证与测试流程
+
+![platform](https://img.shields.io/badge/platform-Excel--VBA%20%2B%20Python-blue)
+![status](https://img.shields.io/badge/status-active-brightgreen)
+![license](https://img.shields.io/badge/license-MIT-lightgrey)
+![Python CI](https://github.com/Wujiaxin245/Edu-Data-Testing/actions/workflows/python-tests.yml/badge.svg)
+![codecov](https://codecov.io/gh/Wujiaxin245/Edu-Data-Testing/branch/main/graph/badge.svg)
+
+---
 
 ## 📘 项目简介
 
-本项目旨在通过模拟教育系统中的学生学习行为数据，设计并实现一套数据质量监控测试方案，覆盖异常学习时段、学习时长异常、数据缺失等典型数据问题。  
-测试方案以探索性测试为核心，结合 VBA 自动化处理手段，构建 Excel 格式的数据质量监测工具，适用于实际教育信息化平台的数据验收和测试验证。
+本项目模拟教育系统中的学生学习行为数据，设计并实现一套完整的数据质量监控测试方案，覆盖异常时间段、学习时长、空值、重复学号等典型问题。
+
+项目最初通过 Excel + VBA 实现数据校验逻辑，并在后续阶段转移至 Python 自动化测试框架（pytest），实现持续集成、覆盖率分析与 HTML 测试报告产出，提升测试效率与工程化能力。
 
 ---
 
 ## 📂 项目结构
 
-| 文件名               | 描述 |
-|----------------------|------|
-| `README.md`          | 项目说明文档（当前文件） |
-| `LICENSE`            | 开源协议（MIT） |
-| `.gitignore`         | Git 忽略配置 |
-| `测试方案草案.md`     | 测试设计文档，包含场景设计与测试步骤说明 |
-| `活动数据样本.xlsx`   | 模拟测试数据，包含学生学习行为信息 |
-| `test.vba` | VBA 自动化脚本（用于异常检测、条件标记等） |
+| 文件/目录                | 描述 |
+|--------------------------|------|
+| `活动数据样本.xlsx`       | 模拟教育行为数据 |
+| `test.vba`               | VBA 自动化脚本（异常检测） |
+| `测试方案草案.md`         | 原始测试设计文档 |
+| `python/`                | Python 自动化测试模块 |
+| `.github/workflows/`     | GitHub Actions CI 流程配置 |
+| `README.md`              | 当前项目说明 |
 
 ---
 
 ## 🧪 测试内容
 
-### ✅ 测试目标
-
-- 检查数据中是否存在学习时间异常（如凌晨学习）
-- 检查学习时长是否超过合理区间
-- 检查是否存在数据缺失、未完成记录
-- 模拟边界条件、复合异常等特殊数据情况
-
-### 🧪 已覆盖的测试场景示例
-
 | 场景编号 | 描述 |
 |----------|------|
 | 1        | 凌晨 3 点学习数据记录的异常检测 |
-| 2        | 学习时长字段为空值的处理 |
-| 3        | 超时 + 未完成记录的复合异常分析 |
-| 4        | 学号重复或数据格式错误检测 |
+| 2        | 学习时长字段为 0 或负数 |
+| 3        | 缺失值处理（空值、NaN） |
+| 4        | 学号重复或格式异常 |
+| 5        | 边界场景：空表、全部异常、全部合规 |
 
 ---
 
-## 🧰 使用说明
+## 🛠️ 使用说明【Excel VBA】
 
-1. 克隆或下载本项目：
-   ```bash
-   git clone https://github.com/Wujiaxin245/Edu-Data-Testing.git
+1. 打开 `活动数据样本.xlsx`
+2. 启用实现异常检测的宏 (macro)
+3. 在 VBA 编辑器中运行 `test.vba` 脚本
 
-![platform](https://img.shields.io/badge/platform-Excel--VBA-blue)
-![status](https://img.shields.io/badge/status-maintained-brightgreen)
-![license](https://img.shields.io/badge/license-MIT-lightgrey)
+---
 
+## 💪 Python 自动化测试模块
 
-## 🧪 Python 自动化测试模块（新增）
-
-本项目新增 `python/` 目录，用于展示如何使用 Python 自动化进行数据校验测试。
+为实现工程化自动测试流程，项目新增了 `python/` 目录，使用 `pytest` 实现测试用例定义与校验逻辑。
 
 ### 📦 安装依赖
 ```bash
@@ -63,28 +61,45 @@ cd python
 pip install -r requirements.txt
 ```
 
-### 🚀 运行测试
+### ▶️ 运行测试
 ```bash
 pytest
 ```
 
-### ✅ 包含测试逻辑
-- 检查重复学号
-- 检查学习时长为负或为零
-- 检查空值
+### 📊 生成 HTML + coverage 报告
+```bash
+pytest --cov=edu_tests --cov-report=html --html=report.html
+```
 
-![Python CI](https://github.com/Wujiaxin245/Edu-Data-Testing/actions/workflows/python-tests.yml/badge.svg)
+生成文件：
+- `report.html`：测试结果报告
+- `htmlcov/index.html`：覆盖率分析
 
-## 📊 自动化测试报告示例
+---
 
-本项目使用 GitHub Actions 自动运行 pytest，并生成 HTML 测试报告。
+## ♻️ GitHub Actions & Codecov 持续集成
 
-你可以在每次提交后的 Actions 页面中下载报告（如下图）：
+项目集成 GitHub Actions 实现 CI 流程，自动运行 pytest 并上传 HTML 报告 + coverage.xml 到 [Codecov.io](https://app.codecov.io/gh/Wujiaxin245/Edu-Data-Testing)
 
-![Actions Report](https://github.com/Wujiaxin245/Edu-Data-Testing/actions)
+### 每次 push/pull request 会:
+- 自动解析是否通过 pytest
+- 生成 report.html 和 coverage.html 报告
+- 在主页显示 Codecov 测试覆盖率
 
-下载路径：点击工作流 ➜ 下方 Artifacts ➜ 下载 `html-test-report` ➜ 解压打开 `report.html`
+---
 
-![codecov](https://codecov.io/gh/Wujiaxin245/Edu-Data-Testing/branch/main/graph/badge.svg)
+## ✨ 项目优势
 
+- 支持 Excel 手工校验 + Python 自动测试的混合模式
+- 从传统手工转向自动化，展示工程化转型能力
+- 覆盖典型数据问题检测 + 边界测试
+- 集成 Codecov 实现可视化覆盖率反馈
+- 可复用于其他结构化数据校验测试场景
 
+---
+
+## 👨‍💻 作者信息
+
+- GitHub：[@Wujiaxin245](https://github.com/Wujiaxin245)
+- 项目地址：[Edu-Data-Testing](https://github.com/Wujiaxin245/Edu-Data-Testing)
+- License：MIT
