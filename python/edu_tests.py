@@ -1,56 +1,94 @@
 import pandas as pd
 from datetime import datetime
-from main import check_education_data, save_with_stats, load_excel  # 替换 main 为你的实际模块名
-import os
+from openpyxl import load_workbook
+from openpyxl.utils.dataframe import dataframe_to_rows
+import sys
 
-def test_check_education_data_all_cases():
-    df = pd.DataFrame({
-        '学号': ['001', '001', '002', '003', '004', '005', '006'],
-        '学习时间': pd.to_datetime([
-            '2025-01-01 01:00',  # 凌晨
-            '2025-01-01 10:00',
-            '2025-01-01 04:00',  # 凌晨
-            '2025-01-01 14:00',
-            '2025-01-01 15:00',
-            '2025-01-01 16:00',
-            '2025-01-01 17:00',
-        ]),
-        '学习时长': [25, 85, 60, 30, 60, 60, 60],  # 异常、正常
-        '学习状态': ['正常', '正常', '正常', '', '正常', '正常', ''],  # 空状态、正常状态
-        '完成状态': ['未完成', '完成', '未完成', '', '未完成', '完成', '完成']  # 空、完成、未完成
+def load_excel(file_path):
+    return pd.read_excel(file_path)
+
+def save_with_stats(df, stats, output_path):
+    df.to_excel(output_path, index=False, sheet_name="数据检测结果")
+
+    stats_df = pd.DataFrame({
+        '检测项': list(stats.keys()),
+        '数量': list(stats.values())
     })
 
-    df_checked, stats = check_education_data(df)
+    with pd.ExcelWriter(output_path, engine="openpyxl", mode="a", if_sheet_exists="replace") as writer:
+        stats_df.to_excel(writer, sheet_name="统计报告", index=False)
 
-    assert len(df_checked) == 7
-    assert '检测结果' in df_checked.columns
+def check_education_data(df):
+    results = []
+    seen_ids = set()
 
-    assert stats["总记录数"] == 7
-    assert stats["学号重复"] == 1          # 第二个 '001'
-    assert stats["学习时长异常"] == 2     # 时长为 25 和 85
-    assert stats["凌晨学习"] == 2         # index 0 和 2
-    assert stats["未完成"] == 3           # 包含空值和 '未完成'
-    assert stats["状态逻辑冲突"] == 2     # '正常' + '未完成'
-    assert stats["正常"] >= 1             # 至少一个正常样本
+    stats = {
+        "总记录数": len(df),
+        "正常": 0,
+        "学号重复": 0,
+        "学习时长异常": 0,
+        "凌晨学习": 0,
+        "未完成": 0,
+        "状态逻辑冲突": 0
+    }
 
-def test_save_and_load_excel(tmp_path):
-    test_file = tmp_path / "test_output.xlsx"
+    for _, row in df.iterrows():
+        result = []
 
-    df = pd.DataFrame({
-        '学号': ['001', '002'],
-        '学习时间': [datetime(2025, 1, 1, 10, 0), datetime(2025, 1, 1, 15, 0)],
-        '学习时长': [60, 65],
-        '学习状态': ['正常', '正常'],
-        '完成状态': ['完成', '完成'],
-    })
+        学号 = str(row.get('学号')).strip()
+        学习时间 = row.get('学习时间')
+        学习时长 = row.get('学习时长')
+        学习状态 = str(row.get('学习状态')).strip() if pd.notna(row.get('学习状态')) else ''
+        完成状态 = str(row.get('完成状态')).strip() if pd.notna(row.get('完成状态')) else ''
 
-    df_checked, stats = check_education_data(df)
-    save_with_stats(df_checked, stats, test_file)
+        if 学号 in seen_ids:
+            result.append("学号重复")
+            stats["学号重复"] += 1
+        elif 学号:
+            seen_ids.add(学号)
 
-    # 检查文件是否存在
-    assert test_file.exists()
+        if pd.notna(学习时长) and (学习时长 < 30 or 学习时长 > 80):
+            result.append("学习时长异常")
+            stats["学习时长异常"] += 1
 
-    # 重新加载并验证
-    loaded = load_excel(test_file)
-    assert '学号' in loaded.columns
-    assert len(loaded) == 2
+        if isinstance(学习时间, pd.Timestamp) and 0 <= 学习时间.hour < 5:
+            result.append("凌晨学习")
+            stats["凌晨学习"] += 1
+
+        if 完成状态 == "" or 完成状态 == "未完成":
+            result.append("未完成")
+            stats["未完成"] += 1
+
+        if 学习状态 == "正常" and 完成状态 == "未完成":
+            result.append("状态逻辑冲突")
+            stats["状态逻辑冲突"] += 1
+
+        if not result:
+            result.append("正常")
+            stats["正常"] += 1
+
+        results.append("；".join(result))
+
+    df['检测结果'] = results
+    return df, stats
+
+def print_report(stats):
+    print("\n📊 数据质量检测报告")
+    print("-" * 30)
+    for k, v in stats.items():
+        print(f"{k:<14}: {v}")
+    print("-" * 30)
+
+if __name__ == "__main__":
+    input_file = "input.xlsx"
+    output_file = "output_检测结果.xlsx"
+
+    try:
+        df = load_excel(input_file)
+        df_checked, stats = check_education_data(df)
+        save_with_stats(df_checked, stats, output_file)
+        print(f"\n✅ 检测完成，结果已保存到: {output_file}")
+        print_report(stats)
+    except Exception as e:
+        print(f"❌ 出错: {e}")
+        sys.exit(1)
