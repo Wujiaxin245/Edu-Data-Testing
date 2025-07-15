@@ -1,5 +1,5 @@
 import pandas as pd
-from edu import check_education_data
+from edu_tests import check_education_data
 
 def test_basic_stats():
     df = pd.DataFrame({
