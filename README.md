@@ -52,3 +52,81 @@
 ![status](https://img.shields.io/badge/status-maintained-brightgreen)
 ![license](https://img.shields.io/badge/license-MIT-lightgrey)
 
+edu-data-testing/
+├── python/
+│   ├── edu_tests.py
+│   ├── test_edu_tests.py
+│   └── requirements.txt
+└── README.md
+
+# python/edu_tests.py
+import pandas as pd
+
+def load_data(file_path: str) -> pd.DataFrame:
+    return pd.read_excel(file_path)
+
+def has_duplicate_ids(df: pd.DataFrame) -> pd.DataFrame:
+    return df[df.duplicated(subset='学号', keep=False)]
+
+def has_invalid_duration(df: pd.DataFrame) -> pd.DataFrame:
+    return df[df['学习时长(分钟)'] <= 0]
+
+def has_missing_values(df: pd.DataFrame) -> pd.DataFrame:
+    return df[df.isnull().any(axis=1)]
+
+# python/test_edu_tests.py
+import pandas as pd
+from edu_tests import has_duplicate_ids, has_invalid_duration, has_missing_values
+
+def test_duplicate_ids():
+    df = pd.DataFrame({
+        '学号': ['001', '002', '001'],
+        '学习时长(分钟)': [60, 80, 70]
+    })
+    duplicates = has_duplicate_ids(df)
+    assert len(duplicates) == 2
+
+def test_invalid_duration():
+    df = pd.DataFrame({
+        '学号': ['001', '002', '003'],
+        '学习时长(分钟)': [60, -10, 0]
+    })
+    invalids = has_invalid_duration(df)
+    assert len(invalids) == 2
+
+def test_missing_values():
+    df = pd.DataFrame({
+        '学号': ['001', None, '003'],
+        '学习时长(分钟)': [60, 70, None]
+    })
+    missings = has_missing_values(df)
+    assert len(missings) == 2
+
+# python/requirements.txt
+pandas
+openpyxl
+pytest
+
+# README.md（附加到原 README 内容中）
+
+## 🧪 Python 自动化测试模块（新增）
+
+本项目新增 `python/` 目录，用于展示如何使用 Python 自动化进行数据校验测试。
+
+### 📦 安装依赖
+```bash
+cd python
+pip install -r requirements.txt
+```
+
+### 🚀 运行测试
+```bash
+pytest
+```
+
+### ✅ 包含测试逻辑
+- 检查重复学号
+- 检查学习时长为负或为零
+- 检查空值
+
+该模块用于展示从原始 Excel/VBA 测试迁移到自动化测试流程的能力，适合展示在软件测试类岗位的简历中。
