@@ -28,18 +28,21 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Run pytest
+    - name: Run pytest with coverage and HTML reports
       run: |
         cd python
-        pytest
-
-    - name: Run pytest with HTML report
-      run: |
-        cd python
-        pytest --html=report.html
+        pytest --cov=edu_tests --cov-report=html --html=report.html
 
     - name: Upload test report
       uses: actions/upload-artifact@v4
       with:
         name: html-test-report
         path: python/report.html
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v4
+      with:
+        name: html-coverage-report
+        path: python/htmlcov/index.html
+
+
