@@ -75,12 +75,14 @@ pytest
 
 ![Python CI](https://github.com/Wujiaxin245/Edu-Data-Testing/actions/workflows/python-tests.yml/badge.svg)
 
-## 📊 自动化测试报告
+## 📊 自动化测试报告示例
 
-每次提交会自动运行 pytest 并生成 HTML 测试报告：[点击查看](https://github.com/Wujiaxin245/Edu-Data-Testing/actions)
+本项目使用 GitHub Actions 自动运行 pytest，并生成 HTML 测试报告。
 
-你也可以在本地运行以下命令生成报告：
+你可以在每次提交后的 Actions 页面中下载报告（如下图）：
 
-```bash
-pytest --html=report.html
+![Actions Report](https://github.com/Wujiaxin245/Edu-Data-Testing/actions)
+
+下载路径：点击工作流 ➜ 下方 Artifacts ➜ 下载 `html-test-report` ➜ 解压打开 `report.html`
+
 
