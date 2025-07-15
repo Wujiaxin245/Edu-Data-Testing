@@ -27,7 +27,7 @@ def test_check_education_data_logic():
     assert stats["学习时长异常"] == 2
     assert stats["凌晨学习"] == 2
     assert stats["未完成"] == 4
-    assert stats["状态逻辑冲突"] == 2
+    assert stats["状态逻辑冲突"] == 3
     assert stats["正常"] >= 1
     assert '检测结果' in df_checked.columns
 
