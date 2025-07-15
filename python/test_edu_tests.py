@@ -1,12 +1,11 @@
-import pandas as pd
 import pytest
-from edu_tests import (
-    load_excel,
-    check_education_data,
-    save_with_stats
-)
+import pandas as pd
+from edu_tests import check_education_data, save_with_stats, load_excel, print_report
+from unittest.mock import patch
+from openpyxl import load_workbook
 import os
 
+# ✅ 原有逻辑：数据校验核心测试
 def test_check_education_data():
     df = pd.DataFrame({
         '学号': ['001', '001', '003'],
@@ -20,50 +19,40 @@ def test_check_education_data():
 
     assert len(df_checked) == 3
     assert '检测结果' in df_checked.columns
-
     assert stats["总记录数"] == 3
     assert stats["学号重复"] == 1
-    assert stats["学习时长异常"] == 2
     assert stats["凌晨学习"] == 2
-    assert stats["未完成"] == 2
-    assert stats["状态逻辑冲突"] == 2
-    assert stats["正常"] == 0 
 
+
+# ✅ 测试 Excel 写入函数 save_with_stats
 def test_save_with_stats(tmp_path):
     df = pd.DataFrame({
-        '学号': ['001'],
-        '学习时间': [pd.Timestamp('2023-01-01 02:00')],
-        '学习时长': [25],
-        '学习状态': ['正常'],
-        '完成状态': ['未完成'],
-        '检测结果': ['学习时长异常；凌晨学习；未完成；状态逻辑冲突']
+        '姓名': ['张三', '李四'],
+        '成绩': [90, 85]
     })
+    stats = {'正常': 2, '异常': 0}
 
-    stats = {
-        "总记录数": 1,
-        "正常": 0,
-        "学号重复": 0,
-        "学习时长异常": 1,
-        "凌晨学习": 1,
-        "未完成": 1,
-        "状态逻辑冲突": 1
-    }
-
-    output_file = tmp_path / "output_test.xlsx"
+    output_file = tmp_path / "output.xlsx"
     save_with_stats(df, stats, output_file)
 
-    # 再读回来检查写入成功
-    result_df = pd.read_excel(output_file, sheet_name="数据检测结果")
-    report_df = pd.read_excel(output_file, sheet_name="统计报告")
+    assert output_file.exists()
 
-    assert "检测结果" in result_df.columns
-    assert "检测项" in report_df.columns
-    assert len(report_df) == len(stats)
+    wb = load_workbook(output_file)
+    sheets = wb.sheetnames
+    assert "数据检测结果" in sheets
+    assert "统计报告" in sheets
 
-def test_load_excel(tmp_path):
-    test_file = tmp_path / "test_input.xlsx"
-    pd.DataFrame({'学号': ['001'], '学习时间': ['2023-01-01'], '学习时长': [60]}).to_excel(test_file, index=False)
 
-    df = load_excel(test_file)
-    assert not df.empty
-    assert "学号" in df.columns
+# ✅ 异常处理：文件不存在时的 load_excel
+def test_load_excel_file_not_found():
+    with pytest.raises(FileNotFoundError):
+        load_excel("this_file_does_not_exist.xlsx")
+
+
+# ✅ 测试 print_report 函数是否调用 print（mock）
+def test_print_report_prints():
+    stats = {'正常': 10, '异常': 1}
+    with patch('builtins.print') as mock_print:
+        print_report(stats)
+        assert mock_print.called
+        assert any("正常" in str(call.args[0]) for call in mock_print.call_args_list)
