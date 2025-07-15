@@ -9,23 +9,16 @@ def load_excel(file_path):
     return pd.read_excel(file_path)
 
 def save_with_stats(df, stats, output_path):
-    # 写入主数据表（默认 Sheet）
+    # 写入主数据表（创建文件）
     df.to_excel(output_path, index=False, sheet_name="数据检测结果")
 
-    # 加载 Excel 文件并添加“统计报告”工作表
-    book = load_workbook(output_path)
-    writer = pd.ExcelWriter(output_path, engine='openpyxl')
-    writer.book = book
-
-    # 转换 stats 为 DataFrame
     stats_df = pd.DataFrame({
         '检测项': list(stats.keys()),
         '数量': list(stats.values())
     })
 
-    # 写入新的 sheet
-    stats_df.to_excel(writer, sheet_name="统计报告", index=False)
-    writer.close()
+    with pd.ExcelWriter(output_path, engine="openpyxl", mode="a", if_sheet_exists="replace") as writer:
+        stats_df.to_excel(writer, sheet_name="统计报告", index=False)
 
 def check_education_data(df):
     results = []
