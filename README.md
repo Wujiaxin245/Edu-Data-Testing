@@ -85,4 +85,5 @@ pytest
 
 下载路径：点击工作流 ➜ 下方 Artifacts ➜ 下载 `html-test-report` ➜ 解压打开 `report.html`
 
+![codecov](https://codecov.io/gh/Wujiaxin245/Edu-Data-Testing/branch/main/graph/badge.svg)
 
