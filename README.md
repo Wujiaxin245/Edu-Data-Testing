@@ -74,3 +74,13 @@ pytest
 - 检查空值
 
 ![Python CI](https://github.com/Wujiaxin245/Edu-Data-Testing/actions/workflows/python-tests.yml/badge.svg)
+
+## 📊 自动化测试报告
+
+每次提交会自动运行 pytest 并生成 HTML 测试报告：[点击查看](https://github.com/Wujiaxin245/Edu-Data-Testing/actions)
+
+你也可以在本地运行以下命令生成报告：
+
+```bash
+pytest --html=report.html
+
