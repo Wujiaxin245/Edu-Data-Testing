@@ -54,4 +54,3 @@ jobs:
       run: |
         cd python
         python edu_tests.py
-
