@@ -54,3 +54,10 @@ jobs:
       run: |
         cd python
         python edu_tests.py
+
+    - name: Upload output Excel file
+      uses: actions/upload-artifact@v4
+      with:
+        name: output-excel
+        path: python/output_检测结果.xlsx
+
