@@ -32,3 +32,14 @@ jobs:
       run: |
         cd python
         pytest
+
+    - name: Run pytest with HTML report
+      run: |
+        cd python
+        pytest --html=report.html
+
+    - name: Upload test report
+      uses: actions/upload-artifact@v4
+      with:
+        name: html-test-report
+        path: python/report.html
