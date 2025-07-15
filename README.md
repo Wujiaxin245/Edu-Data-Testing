@@ -46,7 +46,7 @@
 
 1. 克隆或下载本项目：
    ```bash
-   git clone https://github.com/你的用户名/Edu-Data-Testing.git
+   git clone https://github.com/Wujiaxin245/Edu-Data-Testing.git
 
 ![platform](https://img.shields.io/badge/platform-Excel--VBA-blue)
 ![status](https://img.shields.io/badge/status-maintained-brightgreen)
