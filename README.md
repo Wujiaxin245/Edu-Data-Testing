@@ -72,3 +72,5 @@ pytest
 - 检查重复学号
 - 检查学习时长为负或为零
 - 检查空值
+
+![Python CI](https://github.com/Wujiaxin245/Edu-Data-Testing/actions/workflows/python-tests.yml/badge.svg)
