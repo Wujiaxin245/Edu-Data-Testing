@@ -1,6 +1,6 @@
-# python/edu_tests.py
 import pandas as pd
 
+# 检查教育数据质量的函数
 def check_education_data(df: pd.DataFrame):
     stats = {}
 
@@ -13,13 +13,13 @@ def check_education_data(df: pd.DataFrame):
     stats["学习时长异常"] = len(abnormal_duration)
 
     # T03: 凌晨学习检测（00:00 - 04:59）
-    df["学习时间"] = pd.to_datetime(df["学习时间"], errors="coerce")
-    df["hour"] = df["学习时间"].dt.hour
-    night_study = df[(df["hour"] >= 0) & (df["hour"] < 5)]
+    df["学习时间"] = pd.to_datetime(df["学习时间"], errors="coerce")  # 转换学习时间
+    df["hour"] = df["学习时间"].dt.hour  # 提取小时
+    night_study = df[(df["hour"] >= 0) & (df["hour"] < 5)]  # 凌晨时段
     stats["凌晨学习"] = len(night_study)
 
     # T04: 完成状态缺失检测（空或“未完成”）
-    incomplete = df["完成状态"].fillna("").apply(lambda x: str(x).strip() == "" or x == "未完成")
+    incomplete = df["完成状态"].fillna("").apply(lambda x: x.strip() == "" or x == "未完成")
     stats["未完成"] = incomplete.sum()
 
     # T05: 状态逻辑冲突检测（正常 + 未完成/空）
